@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mall.manager.dao.OrderMapper">
+  <resultMap id="BaseResultMap" type="Order">
+    <id column="order_id" jdbcType="VARCHAR" property="orderId" />
+    <result column="payment" jdbcType="DECIMAL" property="payment" />
+    <result column="payment_type" jdbcType="INTEGER" property="paymentType" />
+    <result column="post_fee" jdbcType="DECIMAL" property="postFee" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="payment_time" jdbcType="TIMESTAMP" property="paymentTime" />
+    <result column="consign_time" jdbcType="TIMESTAMP" property="consignTime" />
+    <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+    <result column="close_time" jdbcType="TIMESTAMP" property="closeTime" />
+    <result column="shipping_name" jdbcType="VARCHAR" property="shippingName" />
+    <result column="shipping_code" jdbcType="VARCHAR" property="shippingCode" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="buyer_message" jdbcType="VARCHAR" property="buyerMessage" />
+    <result column="buyer_nick" jdbcType="VARCHAR" property="buyerNick" />
+    <result column="buyer_comment" jdbcType="BIT" property="buyerComment" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    order_id, payment, payment_type, post_fee, status, create_time, update_time, payment_time, 
+    consign_time, end_time, close_time, shipping_name, shipping_code, user_id, buyer_message, 
+    buyer_nick, buyer_comment
+  </sql>
+
+  <select id="selectByMulti" resultMap="BaseResultMap">
+    SELECT * FROM tb_order
+    WHERE
+    order_id LIKE #{search}
+    OR
+    payment LIKE #{search}
+    OR
+    shipping_code LIKE #{search}
+    OR
+    user_id LIKE #{search}
+    OR
+    buyer_nick LIKE #{search}
+    OR
+    create_time LIKE #{search}
+    OR
+    update_time LIKE #{search}
+    OR
+    payment_time LIKE #{search}
+    OR
+    close_time LIKE #{search}
+    OR
+    end_time LIKE #{search}
+    OR
+    status LIKE #{search}
+    ORDER BY
+    ${orderCol}
+    ${orderDir}
+  </select>
+  <select id="selectOrderChart" resultType="ChartData">
+    select
+      DATE(create_time) date,sum(payment) total
+    FROM tb_order
+    WHERE
+      create_time BETWEEN #{startTime} and #{endTime}
+      and status = 4
+    GROUP BY DATE(create_time)
+  </select>
+  <select id="selectOrderChartByYear" resultType="ChartData">
+    select
+      date_format(create_time,'%Y-%m') date,sum(payment) total
+    FROM tb_order
+    WHERE
+      YEAR(create_time) = #{year}
+      and status = 4
+    GROUP BY date_format(create_time,'%Y-%m')
+  </select>
+</mapper>

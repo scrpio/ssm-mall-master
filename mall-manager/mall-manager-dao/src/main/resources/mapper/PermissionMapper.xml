@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mall.manager.dao.PermissionMapper">
+    <resultMap id="BaseResultMap" type="Permission">
+        <id column="menu_id" property="menuId"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="name" property="name"/>
+        <result column="url" property="url"/>
+        <result column="perms" property="perms"/>
+        <result column="icon" property="icon"/>
+        <result column="order_num" property="orderNum"/>
+        <result column="type" property="type"/>
+        <result column="leaf" property="leaf"/>
+        <result column="component" property="component"/>
+        <result column="created" property="created"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        menu_id as menuId, parent_id as parentId, `name`, url, perms, icon,  order_num as orderNum, `type`, leaf, component, created
+    </sql>
+    <select id="listPermissionUserId" resultType="Permission">
+		select distinct
+        menu_id as menuId, parent_id as parentId, `name`, url, perms, icon,  order_num as orderNum, `type`, leaf, component
+		from tb_permission p
+		left join tb_role_perm rp on p.menu_id = rp.permission_id
+		left join tb_user u on rp.role_id = u.role_id
+		where u.id = #{userId}
+		and p.type in(0,1)
+		order by p.order_num
+	</select>
+</mapper>

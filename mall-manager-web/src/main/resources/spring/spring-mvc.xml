@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- 注解的支持，可以将请求参数绑定到控制器参数-->
+    <mvc:annotation-driven/>
+
+    <!-- 启动对@AspectJ注解的支持 -->
+    <aop:aspectj-autoproxy/>
+
+    <!--注解扫描-->
+    <context:component-scan base-package="com.mall.manager"/>
+
+    <!-- 注解的映射器 -->
+    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping"/>
+
+    <!-- 注解的适配器 -->
+    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter"/>
+
+    <!--上传文件配置-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- 默认编码 -->
+        <property name="defaultEncoding" value="UTF-8"/>
+        <!-- 启用是为了推迟文件解析，以便捕获文件大小异常 -->
+        <property name="resolveLazily" value="true"/>
+        <!-- 文件大小最大值 -->
+        <property name="maxUploadSize" value="209715200"/>
+        <!-- 内存中的最大值 -->
+        <property name="maxInMemorySize" value="40960"/>
+    </bean>
+
+    <!-- 使用spring servlet3.0 默认上传 -->
+    <!--<bean id="multipartResolver" class="org.springframework.web.multipart.support.StandardServletMultipartResolver"/>-->
+
+    <!-- 消费方应用名，用于计算依赖关系，不是匹配条件，不要与提供方一样 -->
+    <!--<dubbo:application name="store-manager-web"  />-->
+
+    <!-- 使用multicast广播注册中心暴露发现服务地址 -->
+    <!--<dubbo:registry address="multicast://224.5.6.7:2181" />-->
+
+    <!-- 生成远程服务代理，可以和本地bean一样使用demoService -->
+    <!--<dubbo:reference id="contentService" interface="IContentService" />-->
+    <!--<dubbo:reference id="itemCatService" interface="IItemCatService" />-->
+    <!--<dubbo:reference id="itemService" interface="IItemService" />-->
+    <!--<dubbo:reference id="memberService" interface="IMemberService" />-->
+    <!--<dubbo:reference id="orderService" interface="IOrderService" />-->
+    <!--<dubbo:reference id="panelService" interface="IPanelService" />-->
+    <!--<dubbo:reference id="systemService" interface="ISystemService" />-->
+    <!--<dubbo:reference id="userService" interface="IUserService" />-->
+</beans>

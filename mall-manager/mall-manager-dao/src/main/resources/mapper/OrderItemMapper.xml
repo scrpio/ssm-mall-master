@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mall.manager.dao.OrderItemMapper">
+  <resultMap id="BaseResultMap" type="OrderItem">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="item_id" jdbcType="VARCHAR" property="itemId" />
+    <result column="order_id" jdbcType="VARCHAR" property="orderId" />
+    <result column="num" jdbcType="INTEGER" property="num" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="price" jdbcType="DECIMAL" property="price" />
+    <result column="total_fee" jdbcType="DECIMAL" property="totalFee" />
+    <result column="pic_path" jdbcType="VARCHAR" property="picPath" />
+    <result column="created" jdbcType="TIMESTAMP" property="created"/>
+  </resultMap>
+
+    <sql id="Base_Column_List">
+      id, item_id, order_id, num, title, price, total_fee, pic_path, created
+    </sql>
+
+    <select id="getWeekHot" resultType="OrderItem">
+        SELECT
+        i.title,
+        i.pic_path picPath,
+        count(*) total
+        FROM
+        tb_order_item i
+        LEFT JOIN tb_order o ON i.order_id = o.order_id
+        WHERE
+        YEARWEEK(date_format(o.create_time,'%Y-%m-%d')) = YEARWEEK(now())
+        AND
+        o.status = 4
+        GROUP BY
+        i.item_id
+        ORDER BY
+        COUNT(*) DESC
+    </select>
+    <select id="selectChartPie" resultType="ChartPie">
+        SELECT temp.`name`, SUM(a.total_fee) as `value`
+        FROM tb_order_item a
+        LEFT JOIN (
+          SELECT
+            b.id AS itemId,
+            c.`name` AS `name`
+          FROM tb_item_cat c, tb_item b
+          WHERE find_in_set(c.id, getParent(b.cid))
+          AND c.parent_id = 0
+        ) temp ON a.item_id = temp.itemId
+        WHERE
+          a.created BETWEEN #{startTime} and #{endTime}
+        GROUP BY temp.`name`
+    </select>
+    <select id="selectFamilyData" resultType="ChartData">
+        SELECT DATE_FORMAT(a.created,'%Y-%m') `date`, SUM(a.total_fee) as total
+        FROM tb_order_item a
+        LEFT JOIN (
+          SELECT
+            b.id AS itemId,
+            c.id,
+            c.`name` AS `name`
+          FROM tb_item_cat c, tb_item b
+          WHERE find_in_set(c.id, getParent(b.cid))
+          AND c.parent_id = 0
+        ) temp ON a.item_id = temp.itemId
+        WHERE YEAR(a.created) = #{year} AND (temp.id=74 or temp.id=633 or temp.id=699)
+        GROUP BY DATE_FORMAT(a.created,'%Y-%m')
+    </select>
+    <select id="selectFoodData" resultType="ChartData">
+        SELECT DATE_FORMAT(a.created,'%Y-%m') `date`, SUM(a.total_fee) as total
+        FROM tb_order_item a
+        LEFT JOIN (
+          SELECT
+            b.id AS itemId,
+            c.id,
+            c.`name` AS `name`
+          FROM tb_item_cat c, tb_item b
+          WHERE find_in_set(c.id, getParent(b.cid))
+          AND c.parent_id = 0
+        ) temp ON a.item_id = temp.itemId
+        WHERE YEAR(a.created) = #{year} AND temp.id=378
+        GROUP BY DATE_FORMAT(a.created,'%Y-%m')
+    </select>
+    <select id="selectCosmeticData" resultType="ChartData">
+        SELECT DATE_FORMAT(a.created,'%Y-%m') `date`, SUM(a.total_fee) as total
+        FROM tb_order_item a
+        LEFT JOIN (
+          SELECT
+            b.id AS itemId,
+            c.id,
+            c.`name` AS `name`
+          FROM tb_item_cat c, tb_item b
+          WHERE find_in_set(c.id, getParent(b.cid))
+          AND c.parent_id = 0
+        ) temp ON a.item_id = temp.itemId
+        WHERE YEAR(a.created) = #{year} AND temp.id=249
+        GROUP BY DATE_FORMAT(a.created,'%Y-%m')
+    </select>
+    <select id="selectApparelData" resultType="ChartData">
+        SELECT DATE_FORMAT(a.created,'%Y-%m') `date`, SUM(a.total_fee) as total
+        FROM tb_order_item a
+        LEFT JOIN (
+          SELECT
+            b.id AS itemId,
+            c.id,
+            c.`name` AS `name`
+          FROM tb_item_cat c, tb_item b
+          WHERE find_in_set(c.id, getParent(b.cid))
+          AND c.parent_id = 0
+        ) temp ON a.item_id = temp.itemId
+        WHERE YEAR(a.created) = #{year} AND (temp.id=749 or temp.id=865 or temp.id=903 or temp.id=290 or temp.id=963)
+        GROUP BY DATE_FORMAT(a.created,'%Y-%m')
+    </select>
+    <select id="selectDigitalData" resultType="ChartData">
+        SELECT DATE_FORMAT(a.created,'%Y-%m') `date`, SUM(a.total_fee) as total
+        FROM tb_order_item a
+        LEFT JOIN (
+          SELECT
+            b.id AS itemId,
+            c.id,
+            c.`name` AS `name`
+          FROM tb_item_cat c, tb_item b
+          WHERE find_in_set(c.id, getParent(b.cid))
+          AND c.parent_id = 0
+        ) temp ON a.item_id = temp.itemId
+        WHERE YEAR(a.created) = #{year} AND (temp.id=558 or temp.id=580 or temp.id=161)
+        GROUP BY DATE_FORMAT(a.created,'%Y-%m')
+    </select>
+    <select id="selectOtherData" resultType="ChartData">
+        SELECT DATE_FORMAT(a.created,'%Y-%m') `date`, SUM(a.total_fee) as total
+        FROM tb_order_item a
+        LEFT JOIN (
+          SELECT
+            b.id AS itemId,
+            c.id,
+            c.`name` AS `name`
+          FROM tb_item_cat c, tb_item b
+          WHERE find_in_set(c.id, getParent(b.cid))
+          AND c.parent_id = 0
+        ) temp ON a.item_id = temp.itemId
+        WHERE YEAR(a.created) = #{year} AND (temp.id=1 or temp.id=1031 or temp.id=1147 or temp.id=1183 or temp.id=296 or temp.id=438 or temp.id=495)
+        GROUP BY DATE_FORMAT(a.created,'%Y-%m')
+    </select>
+</mapper>

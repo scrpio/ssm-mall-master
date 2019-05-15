@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:elasticsearch="http://www.springframework.org/schema/data/elasticsearch"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/data/elasticsearch http://www.springframework.org/schema/data/elasticsearch/spring-elasticsearch.xsd">
+
+    <!--注解扫描-->
+    <context:component-scan base-package="com.mall.manager"/>
+
+    <import resource="classpath:spring/spring-mybatis.xml"/>
+    <import resource="classpath:spring/spring-shiro.xml"/>
+    <import resource="classpath:spring/spring-trans.xml"/>
+    <import resource="classpath:spring/spring-activemq.xml"/>
+    <import resource="classpath:spring/spring-redis.xml"/>
+
+    <!-- elasticsearch配置 -->
+    <elasticsearch:repositories base-package="com.es"/>
+
+    <elasticsearch:transport-client id="client" cluster-nodes="192.168.229.128:9300" cluster-name="ming" />
+
+    <bean name="elasticsearchTemplate" class="org.springframework.data.elasticsearch.core.ElasticsearchTemplate">
+        <constructor-arg name="client" ref="client"/>
+    </bean>
+</beans>

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mall.manager.dao.MemberMapper">
+    <resultMap id="BaseResultMap" type="Member">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="phone" jdbcType="VARCHAR" property="phone"/>
+        <result column="email" jdbcType="VARCHAR" property="email"/>
+        <result column="sex" jdbcType="VARCHAR" property="sex"/>
+        <result column="address" jdbcType="VARCHAR" property="address"/>
+        <result column="state" jdbcType="INTEGER" property="state"/>
+        <result column="description" jdbcType="VARCHAR" property="description"/>
+        <result column="file" jdbcType="VARCHAR" property="file"/>
+        <result column="points" jdbcType="INTEGER" property="points"/>
+        <result column="balance" jdbcType="DECIMAL" property="balance"/>
+        <result column="created" jdbcType="TIMESTAMP" property="created"/>
+        <result column="updated" jdbcType="TIMESTAMP" property="updated"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, username, password, phone, email, sex, address, state, description,
+        file, points, balance, created, updated
+    </sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tb_member
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <insert id="insert" parameterType="Member">
+        insert into tb_member (id, username, password,
+          phone, email, created,
+          updated, sex, address,
+          state, file, description,
+          points, balance)
+        values (#{id,jdbcType=BIGINT}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+          #{phone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{created,jdbcType=TIMESTAMP},
+          #{updated,jdbcType=TIMESTAMP}, #{sex,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR},
+          #{state,jdbcType=INTEGER}, #{file,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
+          #{points,jdbcType=INTEGER}, #{balance,jdbcType=DECIMAL})
+    </insert>
+    <update id="update" parameterType="map">
+        update tb_member
+        <set>
+            <if test="username != null">
+                username = #{username,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                password = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="phone != null">
+                phone = #{phone,jdbcType=VARCHAR},
+            </if>
+            <if test="email != null">
+                email = #{email,jdbcType=VARCHAR},
+            </if>
+            <if test="created != null">
+                created = #{created,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updated != null">
+                updated = #{updated,jdbcType=TIMESTAMP},
+            </if>
+            <if test="sex != null">
+                sex = #{sex,jdbcType=VARCHAR},
+            </if>
+            <if test="address != null">
+                address = #{address,jdbcType=VARCHAR},
+            </if>
+            <if test="state != null">
+                state = #{state,jdbcType=INTEGER},
+            </if>
+            <if test="file != null">
+                file = #{file,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null">
+                description = #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="points != null">
+                points = #{points,jdbcType=INTEGER},
+            </if>
+            <if test="balance != null">
+                balance = #{balance,jdbcType=DECIMAL},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <delete id="delete" parameterType="java.lang.Long">
+        delete from tb_member
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+
+    <select id="findMemberByUsername" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tb_member
+        where username = #{username}
+    </select>
+    <select id="selectByMemberInfo" parameterType="string" resultMap="BaseResultMap">
+        SELECT * FROM tb_member
+        WHERE
+        state != 2
+        <where>
+            <if test="condition != null and condition != ''">
+                AND (username LIKE #{condition} OR
+                phone LIKE #{condition} OR
+                email LIKE #{condition} OR
+                sex LIKE #{condition} OR
+                address LIKE #{condition})
+            </if>
+        </where>
+    </select>
+    <select id="selectByRemoveMemberInfo" parameterType="string" resultMap="BaseResultMap">
+        SELECT * FROM tb_member
+        WHERE
+        state = 2
+        <where>
+            <if test="condition != null and condition != ''">
+                AND (username LIKE #{condition} OR
+                phone LIKE #{condition} OR
+                email LIKE #{condition} OR
+                sex LIKE #{condition} OR
+                address LIKE #{condition})
+            </if>
+        </where>
+    </select>
+
+    <select id="selectMemberChart" resultType="ChartData">
+        SELECT DATE(created) date, COUNT(*) total
+        FROM tb_member
+        WHERE created BETWEEN #{startTime} and #{endTime}
+        GROUP BY DATE(created)
+    </select>
+    <select id="selectMemberChartByYear" resultType="ChartData">
+    select
+      date_format(created,'%Y-%m') date,COUNT(*) total
+    FROM tb_member
+    WHERE YEAR(created) = #{year}
+    GROUP BY date_format(created,'%Y-%m')
+  </select>
+</mapper>

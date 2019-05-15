@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mall.manager.dao.PanelMapper">
+  <resultMap id="BaseResultMap" type="Panel">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="sort_order" jdbcType="INTEGER" property="sortOrder" />
+    <result column="position" jdbcType="INTEGER" property="position" />
+    <result column="limit_num" jdbcType="INTEGER" property="limitNum" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="created" jdbcType="TIMESTAMP" property="created" />
+    <result column="updated" jdbcType="TIMESTAMP" property="updated" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, `name`, `type`, sort_order, `position`, limit_num, status, remark, created, updated
+  </sql>
+
+  <select id="selectByPanelId" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from tb_panel
+    where id = #{id,jdbcType=INTEGER} and status = #{status,jdbcType=INTEGER}
+    order by sort_order
+  </select>
+
+  <select id="selectPanelAll" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from tb_panel
+    where status = #{status,jdbcType=INTEGER} and `position` = #{position,jdbcType=INTEGER}
+    order by sort_order
+  </select>
+
+  <select id="selectById" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from tb_panel
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <insert id="insert" parameterType="Panel">
+    insert into tb_panel (id, name, type,
+      sort_order, position, limit_num,
+      status, remark, created,
+      updated)
+    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER},
+      #{sortOrder,jdbcType=INTEGER}, #{position,jdbcType=INTEGER}, #{limitNum,jdbcType=INTEGER},
+      #{status,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, #{created,jdbcType=TIMESTAMP},
+      #{updated,jdbcType=TIMESTAMP})
+  </insert>
+  <update id="update" parameterType="map">
+    update tb_panel
+    <set>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        type = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="sortOrder != null">
+        sort_order = #{sortOrder,jdbcType=INTEGER},
+      </if>
+      <if test="position != null">
+        position = #{position,jdbcType=INTEGER},
+      </if>
+      <if test="limitNum != null">
+        limit_num = #{limitNum,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="created != null">
+        created = #{created,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updated != null">
+        updated = #{updated,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <delete id="delete" parameterType="java.lang.Long">
+    delete from tb_panel
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+</mapper>

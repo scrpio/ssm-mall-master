@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mall.manager.dao.SysLogMapper">
+  <resultMap id="BaseResultMap" type="SysLog">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="url" jdbcType="VARCHAR" property="url" />
+    <result column="request_type" jdbcType="VARCHAR" property="requestType" />
+    <result column="request_param" jdbcType="VARCHAR" property="requestParam" />
+    <result column="user" jdbcType="VARCHAR" property="user" />
+    <result column="ip" jdbcType="VARCHAR" property="ip" />
+    <result column="ip_info" jdbcType="VARCHAR" property="ipInfo" />
+    <result column="time" jdbcType="INTEGER" property="time" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, name, type, url, request_type, request_param, user, ip, ip_info, time, create_date
+  </sql>
+
+  <select id="selectByMulti" resultMap="BaseResultMap">
+    SELECT * FROM tb_log
+    WHERE
+    id LIKE #{search}
+    OR
+    name LIKE #{search}
+    OR
+    type LIKE #{search}
+    OR
+    url LIKE #{search}
+    OR
+    request_type LIKE #{search}
+    OR
+    request_param LIKE #{search}
+    OR
+    user LIKE #{search}
+    OR
+    ip LIKE #{search}
+    OR
+    ip_info LIKE #{search}
+    OR
+    time LIKE #{search}
+    OR
+    create_date LIKE #{search}
+    ORDER BY
+    ${orderCol}
+    ${orderDir}
+  </select>
+</mapper>
