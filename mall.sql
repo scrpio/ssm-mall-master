@@ -4,13 +4,13 @@ Navicat MySQL Data Transfer
 Source Server         : localhost_3306
 Source Server Version : 50719
 Source Host           : localhost:3306
-Source Database       : store
+Source Database       : mall
 
 Target Server Type    : MYSQL
 Target Server Version : 50719
 File Encoding         : 65001
 
-Date: 2019-05-15 17:30:31
+Date: 2019-05-16 11:04:05
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -56,10 +56,10 @@ CREATE TABLE `tb_article` (
 -- ----------------------------
 -- Records of tb_article
 -- ----------------------------
-INSERT INTO `tb_article` VALUES ('2', '测试二', 'admin', '的非官方的', '<p class=\"ql-indent-1\">程序不规范的各部分的根本电饭锅电饭锅的嘎</p>', '2', '0', '2018-11-30 15:53:05', '2018-11-06 14:47:23');
+INSERT INTO `tb_article` VALUES ('2', '测试二', 'admin', '富文本编辑摘要二', '<p class=\"ql-indent-1\">富文本编辑内容二</p>', '2', '0', '2018-11-30 15:53:05', '2018-11-06 14:47:23');
 INSERT INTO `tb_article` VALUES ('3', 'CentOS7 上搭建多节点 Elasticsearch集群', 'codesheep', ' 本文内容脑图如下： 文章共 747字，阅读大约需要 2分钟 ！ 概 述 最近学 Elasticsearch，既然学之，怎么能没有实际的集群来把玩呢，因此自己必须动手搭一个！ 注： 本文首发于 My Personal Blog：CodeSheep·程序羊，欢迎光临 小站 环境准备 节点准备本文准备搭建 双节点 Elasticsearch集群，因此这里准备了两台 Linux CentOS 7. ', '<p><img src=\"https://upload-images.jianshu.io/upload_images/9824247-192427d9b89f5226.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240\" alt=\"Profile\"></p><blockquote>本文内容脑图如下：</blockquote><p><img src=\"https://upload-images.jianshu.io/upload_images/9824247-b622070b0cfc4c8c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240\" alt=\"本文内容脑图\"></p><blockquote>文章共 747字，阅读大约需要 2分钟 ！</blockquote><h2>概 述</h2><p>最近学 Elasticsearch，既然学之，怎么能没有实际的集群来把玩呢，因此自己必须动手搭一个！</p><blockquote><strong>注：</strong> 本文首发于 <a href=\"http://www.codesheep.cn\" target=\"_blank\"><strong>My Personal Blog：CodeSheep·程序羊</strong></a>，欢迎光临 <a href=\"http://www.codesheep.cn\" target=\"_blank\"><strong>小站</strong></a></blockquote><h2>环境准备</h2><ul><li><strong>节点准备</strong></li></ul><p>本文准备搭建 <strong>双节点</strong> Elasticsearch集群，因此这里准备了两台 <strong>Linux CentOS 7.4 64bit</strong> 机器：</p><ul><li>节点1：<code>192.168.31.8</code></li><li>节点2：<code>192.168.31.9</code></li><li><strong>Elasticsearch 安装包准备</strong></li></ul><p>这里下载的是截止到当前日期的最新版：<code>6.4.2</code></p><pre class=\"ql-syntax\" spellcheck=\"false\">wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.4.2.tar.gz\n</pre><ul><li><strong>安装目录准备</strong></li></ul><p>这里拟将 Elasticsearch安装在 <code>/opt/elasticsearch</code> 目录下：</p><pre class=\"ql-syntax\" spellcheck=\"false\">mkdir /opt/elasticsearch\n将压缩包复制到该目录下并解压\n</pre><h2>Elasticsearch 集群配置</h2><p>需要修改两个节点上的配置文件 elasticsearch.yml</p><ul><li><strong>节点1 配置</strong></li></ul><pre class=\"ql-syntax\" spellcheck=\"false\">cluster.name: codesheep         # 集群名称\nnode.name: sheep1                 # 节点名\nnetwork.host: 192.168.31.8     # 绑定的节点1地址\nnetwork.bind_host: 0.0.0.0      # 此项不设置你试试本机可能访问不了啊\ndiscovery.zen.ping.unicast.hosts: [\"192.168.31.8\",\"192.168.31.9\"]  # hosts列表\ndiscovery.zen.minimum_master_nodes: 1 \n\n## 如下配置是为了解决 Elasticsearch可视化工具 dejavu的跨域问题！若不用可视化工具则可省略之\nhttp.port: 9200\nhttp.cors.allow-origin: \"http://192.168.199.76:1358\"\nhttp.cors.enabled: true\nhttp.cors.allow-headers : X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization\nhttp.cors.allow-credentials: true\n</pre><ul><li><strong>节点2 配置</strong></li></ul><pre class=\"ql-syntax\" spellcheck=\"false\">cluster.name: codesheep         # 集群名称\nnode.name: sheep1                 # 节点名\nnetwork.host: 192.168.31.9     # 绑定的节点2地址\nnetwork.bind_host: 0.0.0.0     \ndiscovery.zen.ping.unicast.hosts: [\"192.168.31.8\",\"192.168.31.9\"]  # hosts列表\ndiscovery.zen.minimum_master_nodes: 1 \n\n## 如下配置是为了解决 Elasticsearch可视化工具 dejavu的跨域问题！若不用可视化工具则可省略之\nhttp.port: 9200\nhttp.cors.allow-origin: \"http://192.168.199.76:1358\"\nhttp.cors.enabled: true\nhttp.cors.allow-headers : X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization\nhttp.cors.allow-credentials: true\n</pre><h2>集群启动前准备</h2><ul><li><strong>创建用户及用户组</strong></li></ul><p>由于 Elasticsearch不能以 root用户启动，因此需要添加非 root用户：</p><pre class=\"ql-syntax\" spellcheck=\"false\">groupadd es\nuseradd es -g es\nchown -R es:es ./elasticsearch-6.4.2\n</pre><ul><li><strong>关闭防火墙</strong></li></ul><pre class=\"ql-syntax\" spellcheck=\"false\">systemctl stop firewalld\nsystemctl disable firewalld\n</pre><h2>启动 Elasticsearch集群</h2><ul><li><strong>切换用户</strong></li></ul><pre class=\"ql-syntax\" spellcheck=\"false\">su es\n</pre><ul><li><strong>分别在 节点1和 节点2上启动ES服务</strong></li></ul><pre class=\"ql-syntax\" spellcheck=\"false\">cd bin\n./elasticsearch  // 若要后台启动，则加-d参数\n</pre><ul><li><strong>浏览器访问：</strong><a href=\"http://ip:9200/\" target=\"_blank\"><strong>http://ip:9200/</strong></a><strong> 查看启动效果</strong></li></ul><p><img src=\"https://upload-images.jianshu.io/upload_images/9824247-78e52dfdd7678003.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240\" alt=\"启动后浏览器访问效果\"></p><ul><li><strong>命令行查看集群信息</strong></li></ul><p><img src=\"https://upload-images.jianshu.io/upload_images/9824247-2581dda7bfab6ddb.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240\" alt=\"image.png\"></p><ul><li><strong>利用可视化工具 dejavu查看集群信息</strong></li></ul><p>关于 Elasticsearch集群可视化管理工具的上手，可以参考我的前文：<a href=\"http://www.codesheep.cn/2018/10/30/es-visualization/\" target=\"_blank\">《一文上手 Elasticsearch常用可视化管理工具》</a></p><p><img src=\"https://upload-images.jianshu.io/upload_images/9824247-947e5a222a067e8b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240\" alt=\"可视化工具dejavu查看集群信息\"></p><ul><li><strong>接下来插入两条数据</strong></li></ul><pre class=\"ql-syntax\" spellcheck=\"false\">curl -X PUT \'localhost:9200/accounts/person/1\' -d \'\n{\n  \"user\": \"张三\",\n  \"title\": \"工程师\",\n  \"desc\": \"数据库管理\"\n}\' \n\ncurl -X PUT \'localhost:9200/accounts/person/1\' -d \'\n{\n  \"user\": \"赵四\",\n  \"title\": \"设计师\",\n  \"desc\": \"UI设计\"\n}\' \n</pre><ul><li><strong>查看数据的入库效果</strong></li></ul><p><img src=\"https://upload-images.jianshu.io/upload_images/9824247-bc4cf2be0d6a670e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240\" alt=\"数据入库效果\"></p><p>OK，<strong>索引 / 类型 / 文档</strong> 一目了然！</p><blockquote>若在 Elasticsearch集群 <strong>安装/启动</strong> 过程 中有任何奇葩 <strong>问题/错误</strong> 的话，就参考我的这篇文章：<a href=\"https://www.jianshu.com/p/04f4d7b4a1d3\" target=\"_blank\">《CentOS7上ElasticSearch安装填坑记》</a>吧，里面的坑我都一个个填过了！</blockquote><h2>安装IK分词器</h2><blockquote>在 Elasticsearch的世界中，插件是很重要的一部分，很多功能都可以通过插件来实现，因此下面就以常用的 <strong>IK分词器插件</strong> 的安装为例，来操作一下 Elasticsearch插件的安装</blockquote><p>分词技术是搜索技术的基石，而 IK分词器是比较经典的一个，接下来尝试安装一下吧</p><p>IK分词器版本与 ES版本对应，不能搞错，可在 <a href=\"https://github.com/medcl/elasticsearch-analysis-ik/releases\" target=\"_blank\">这里查看</a></p><ul><li><strong>下载 IK分词器插件</strong></li></ul><pre class=\"ql-syntax\" spellcheck=\"false\">wget https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v6.4.2/elasticsearch-analysis-ik-6.4.2.zip\n</pre><ul><li><strong>解压 / 安装</strong></li></ul><p>新建目录 <code>/opt/elasticsearch/elasticsearch-6.4.2/plugins/elasticsearch-analysis-ik-6.4.2</code></p><p>再将 zip包置于上述目录下并解压：</p><p><code>unzip elasticsearch-analysis-ik-6.4.2.zip</code></p><ul><li><strong>重启 Elasticsearch集群</strong></li></ul><p>重启 Elasticsearch集群，若发现如下内容，这说明插件安装成功：</p><p><img src=\"https://upload-images.jianshu.io/upload_images/9824247-318a4d0679c8697a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240\" alt=\"检查IK分词器插件安装是否成功\"></p><p>怎么样，很简单吧，就是一个解压放置的过程嘛！</p>', '3', '1', '2018-12-06 15:53:09', '2018-11-06 15:44:52');
-INSERT INTO `tb_article` VALUES ('4', 'fdgfd', 'fdgf', 'fdgdfg', '<p>sghdfghfd</p>', '5', '1', '2018-12-07 15:53:14', '2018-11-30 15:09:26');
-INSERT INTO `tb_article` VALUES ('5', 'vxccxv', 'gbfv', 'fhfd', '<p>fhgfd</p>', '2', '1', '1970-01-19 04:46:08', '2018-11-30 16:54:03');
+INSERT INTO `tb_article` VALUES ('4', '测试一', 'admin', '富文本编辑摘要一', '<p>富文本编辑内容一</p>', '5', '0', '2018-12-07 15:53:14', '2018-11-30 15:09:26');
+INSERT INTO `tb_article` VALUES ('5', '测试三', 'admin', '富文本编辑摘要三', '<p>富文本编辑内容三</p>', '2', '0', '1970-01-19 08:46:12', '2018-11-30 16:54:03');
 
 -- ----------------------------
 -- Table structure for tb_base
@@ -1459,7 +1459,7 @@ CREATE TABLE `tb_log` (
   `time` int(11) DEFAULT NULL,
   `create_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=164 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=173 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of tb_log
@@ -1489,6 +1489,15 @@ INSERT INTO `tb_log` VALUES ('160', '用户登录', '1', '/login', 'POST', null,
 INSERT INTO `tb_log` VALUES ('161', '用户登录', '1', '/login', 'POST', null, 'admin', '192.168.171.1', '未知', '21060', '2019-04-24 11:34:49');
 INSERT INTO `tb_log` VALUES ('162', '用户登录', '1', '/login', 'POST', null, 'admin', '192.168.171.1', '广州 广州', '767', '2019-04-25 09:29:22');
 INSERT INTO `tb_log` VALUES ('163', '用户登录', '1', '/login', 'POST', null, 'admin', '192.168.171.1', '广州 广州', '1218', '2019-05-15 13:04:08');
+INSERT INTO `tb_log` VALUES ('164', '用户登录', '1', '/login', 'POST', null, 'admin', '192.168.171.1', '广州 广州', '3188', '2019-05-16 09:41:56');
+INSERT INTO `tb_log` VALUES ('165', '用户登录', '1', '/login', 'POST', null, 'admin', '192.168.171.1', '广州 广州', '113', '2019-05-16 09:51:28');
+INSERT INTO `tb_log` VALUES ('166', '用户登录', '1', '/login', 'POST', null, 'admin', '192.168.171.1', '广州 广州', '27153', '2019-05-16 09:55:52');
+INSERT INTO `tb_log` VALUES ('167', '用户登录', '1', '/login', 'POST', null, 'admin', '192.168.171.1', '广州 广州', '2478', '2019-05-16 09:56:25');
+INSERT INTO `tb_log` VALUES ('168', '编辑文章', '1', '/article/update', 'POST', null, 'admin', '192.168.171.1', '广州 广州', '657', '2019-05-16 10:05:54');
+INSERT INTO `tb_log` VALUES ('169', '编辑文章', '1', '/article/update', 'POST', null, 'admin', '192.168.171.1', '广州 广州', '111', '2019-05-16 10:06:47');
+INSERT INTO `tb_log` VALUES ('170', '编辑文章', '1', '/article/update', 'POST', null, 'admin', '192.168.171.1', '广州 广州', '83', '2019-05-16 10:07:47');
+INSERT INTO `tb_log` VALUES ('171', '编辑文章', '1', '/article/update', 'POST', null, 'admin', '192.168.171.1', '广州 广州', '155', '2019-05-16 10:08:02');
+INSERT INTO `tb_log` VALUES ('172', '用户登录', '1', '/login', 'POST', null, 'admin', '192.168.171.1', '广州 广州', '170', '2019-05-16 10:16:32');
 
 -- ----------------------------
 -- Table structure for tb_member
@@ -1828,11 +1837,11 @@ INSERT INTO `tb_panel_content` VALUES ('15', '2', '0', '150642571432840', '4', '
 INSERT INTO `tb_panel_content` VALUES ('16', '2', '0', '150642571432841', '5', '', 'https://resource.smartisan.com/resource/b899d9b82c4bc2710492a26af021d484.jpg', null, null, '2017-10-22 22:15:51', '2018-04-20 10:49:02');
 INSERT INTO `tb_panel_content` VALUES ('17', '2', '0', '150642571432842', '6', '', 'https://resource.smartisan.com/resource/abb6986430536cd9365352b434f3c568.jpg', null, null, '2017-10-22 22:17:01', '2018-04-20 10:49:17');
 INSERT INTO `tb_panel_content` VALUES ('18', '3', '0', '847276', '3', null, 'https://resource.smartisan.com/resource/99c548bfc9848a8c95f4e4f7f2bc1095.png', null, null, '2017-10-22 22:22:52', '2017-10-22 22:22:52');
-INSERT INTO `tb_panel_content` VALUES ('19', '3', '0', '150642571432844', '4', '', 'https://resource.smartisan.com/resource/71432ad30288fb860a4389881069b874.png', null, null, '2017-10-22 22:23:35', '2018-04-20 11:25:38');
+INSERT INTO `tb_panel_content` VALUES ('19', '8', '0', '150642571432844', '4', '', 'https://resource.smartisan.com/resource/71432ad30288fb860a4389881069b874.png', null, null, '2017-10-22 22:23:35', '2018-04-20 11:25:38');
 INSERT INTO `tb_panel_content` VALUES ('20', '3', '0', '847276', '5', '', 'https://resource.smartisan.com/resource/804b82e4c05516e822667a23ee311f7c.jpg', null, null, '2017-10-22 22:24:54', '2018-04-20 00:15:03');
 INSERT INTO `tb_panel_content` VALUES ('21', '3', '0', '150642571432852', '6', '', 'https://resource.smartisan.com/resource/367d93db1d58f9f3505bc0ec18efaa44.jpg', null, null, '2017-10-22 22:25:28', '2018-04-20 00:24:11');
-INSERT INTO `tb_panel_content` VALUES ('22', '1', '0', '150635087972564', '1', null, 'http://ow2h3ee9w.bkt.clouddn.com/FjvP4gBFeYGQoEtEX7dL3kbwJTDW', null, null, '2017-10-22 22:26:31', '2017-10-22 22:26:31');
-INSERT INTO `tb_panel_content` VALUES ('23', '1', '0', '150642571432835', '2', '', 'http://ow2h3ee9w.bkt.clouddn.com/FgwHSk1Rnd-8FKqNJhFSSdcq2QVB', null, null, '2017-10-22 22:26:40', '2018-04-17 20:59:35');
+INSERT INTO `tb_panel_content` VALUES ('22', '1', '0', '150642571432837', '1', null, 'https://resource.smartisan.com/resource/3a7522290397a9444d7355298248f197.jpg', null, null, '2017-10-22 22:26:31', '2017-10-22 22:26:31');
+INSERT INTO `tb_panel_content` VALUES ('23', '1', '0', '150642571432838', '2', '', 'https://resource.smartisan.com/resource/63ea40e5c64db1c6b1d480c48fe01272.jpg', null, null, '2017-10-22 22:26:40', '2018-04-17 20:59:35');
 INSERT INTO `tb_panel_content` VALUES ('25', '8', '0', '150642571432835', '1', 'https://www.smartisan.com/jianguo3-accessories', 'https://resource.smartisan.com/resource/6/610400xinpinpeijian.jpg', null, null, '2018-04-15 19:07:43', '2018-04-19 23:20:34');
 INSERT INTO `tb_panel_content` VALUES ('26', '8', '0', '150635087972564', '2', 'https://www.smartisan.com/service/#/tradein', 'https://resource.smartisan.com/resource/6/610400yijiuhuanxin.jpg', null, null, '2018-04-15 19:08:00', '2018-04-19 23:20:48');
 INSERT INTO `tb_panel_content` VALUES ('27', '8', '0', '150642571432835', '3', 'https://www.smartisan.com/category?id=69', 'https://resource.smartisan.com/resource/4/489673079577637073.png', null, null, '2018-04-15 19:08:24', '2018-04-19 23:21:01');
@@ -1859,6 +1868,9 @@ INSERT INTO `tb_panel_content` VALUES ('48', '6', '0', '150642571432835', '2', n
 INSERT INTO `tb_panel_content` VALUES ('49', '4', '0', '150635087972564', '1', null, 'http://ow2h3ee9w.bkt.clouddn.com/FjvP4gBFeYGQoEtEX7dL3kbwJTDW', null, null, '2018-04-19 11:20:15', '2018-04-19 11:20:17');
 INSERT INTO `tb_panel_content` VALUES ('50', '4', '0', '150642571432835', '2', null, 'http://ow2h3ee9w.bkt.clouddn.com/FgwHSk1Rnd-8FKqNJhFSSdcq2QVB', null, null, '2018-04-19 11:20:19', '2018-04-19 11:20:21');
 INSERT INTO `tb_panel_content` VALUES ('51', '7', '0', '150635087972564', '5', '', 'http://mall.paascloud.net/static/img/banner5.ee91369.jpg', null, null, '2018-04-19 15:09:40', '2018-04-19 21:16:04');
+INSERT INTO `tb_panel_content` VALUES ('52', '1', '0', '150642571432837', '1', '', 'https://resource.smartisan.com/resource/3a7522290397a9444d7355298248f197.jpg', '', '', '2017-10-22 22:26:31', '2017-10-22 22:26:31');
+INSERT INTO `tb_panel_content` VALUES ('53', '1', '0', '150642571432838', '2', '', 'https://resource.smartisan.com/resource/63ea40e5c64db1c6b1d480c48fe01272.jpg', '', '', '2017-10-22 22:26:40', '2018-04-17 20:59:35');
+INSERT INTO `tb_panel_content` VALUES ('54', '1', '0', '150642571432838', '2', '', 'https://resource.smartisan.com/resource/63ea40e5c64db1c6b1d480c48fe01272.jpg', '', '', '2017-10-22 22:26:40', '2018-04-17 20:59:35');
 INSERT INTO `tb_panel_content` VALUES ('55', '0', '1', null, '1', 'http://xmall.exrick.cn/#/goods?cid=1184', '品牌周边', null, null, '2018-07-27 20:48:21', '2018-07-27 22:32:51');
 INSERT INTO `tb_panel_content` VALUES ('58', '0', '1', null, '2', 'http://xmall.exrick.cn/#/thanks', '捐赠名单', null, null, '2018-07-27 20:50:07', '2018-07-27 22:25:18');
 INSERT INTO `tb_panel_content` VALUES ('59', '0', '0', null, '3', 'http://xmadmin.exrick.cn', '后台管理系统', null, null, '2018-07-27 22:25:44', '2018-07-27 22:26:54');
@@ -2024,8 +2036,8 @@ CREATE TABLE `tb_user` (
 -- ----------------------------
 -- Records of tb_user
 -- ----------------------------
-INSERT INTO `tb_user` VALUES ('1', 'admin', '098f6bcd4621d373cade4e832627b4f6', '17621230884', 'admin@qq.com', '0', null, '1', '权利至上', '1', 'http://192.168.229.128/images/2018/10/ca8bf9f27ed64ae68fda4a29408fd1c1.png', '2017-09-05 21:27:54', '2018-10-25 17:51:22');
-INSERT INTO `tb_user` VALUES ('2', 'user', 'e10adc3949ba59abbe56e057f20f883e', '13712345678', 'user@163.com', '1', null, '1', '', '3', 'https://resource.smartisan.com/resource/3a7522290397a9444d7355298248f197.jpg', '2018-10-10 15:55:03', '2018-11-28 14:01:44');
+INSERT INTO `tb_user` VALUES ('1', 'admin', '098f6bcd4621d373cade4e832627b4f6', '17621230884', 'admin@qq.com', '0', null, '1', '权利至上', '1', 'https://avatars0.githubusercontent.com/u/38967551?s=460&v=4', '2017-09-05 21:27:54', '2018-10-25 17:51:22');
+INSERT INTO `tb_user` VALUES ('2', 'user', 'e10adc3949ba59abbe56e057f20f883e', '13712345678', 'user@163.com', '1', null, '1', '', '3', 'https://avatars0.githubusercontent.com/u/38967551?s=460&v=4', '2018-10-10 15:55:03', '2018-11-28 14:01:44');
 INSERT INTO `tb_user` VALUES ('3', 'tony', 'e10adc3949ba59abbe56e057f20f883e', '13798746532', 'tony@163.com', '0', null, '0', '', '1', null, '2018-10-15 16:45:21', '2018-11-28 14:49:18');
 INSERT INTO `tb_user` VALUES ('4', 'lcuy', 'e10adc3949ba59abbe56e057f20f883e', '13745678900', 'lucy2@163.com', '0', null, '0', '', '4', null, '2018-11-28 14:52:57', '2019-04-24 09:39:43');
 
